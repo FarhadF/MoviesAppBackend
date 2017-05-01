@@ -2,9 +2,9 @@ package logging
 
 import (
 	"fmt"
-
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -29,6 +29,20 @@ func (r *ApacheLogRecord) Log(out io.Writer) {
 	requestLine := fmt.Sprintf("%s %s %s", r.method, r.uri, r.protocol)
 	fmt.Fprintf(out, ApacheFormatPattern, r.ip, timeFormatted, requestLine, r.status, r.responseBytes,
 		r.elapsedTime.Seconds())
+}
+
+func HumanizeDuration(t time.Duration) string {
+	ti := t.Nanoseconds()
+	if ti < 1000 {
+
+		return strconv.FormatInt(ti, 10) + "ns"
+	} else if ti > 1000 && ti < 1000000 {
+		return strconv.FormatInt(ti/1000, 10) + "µs"
+	} else if ti > 1000000 && ti < 1000000000 {
+		return strconv.FormatInt(ti/1000000, 10) + "ms"
+	} else {
+		return strconv.FormatFloat(t.Seconds(), 'f', 6, 64) + "s"
+	}
 }
 
 func (r *ApacheLogRecord) Write(p []byte) (int, error) {
