@@ -5,8 +5,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"moviesapp/controllers"
+	"moviesapp/logging"
 	"moviesapp/models"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -14,7 +16,13 @@ func main() {
 	router := httprouter.New()
 	router.GET("/movies", controllers.GetMovies)
 	router.POST("/movie/new", controllers.NewMovie)
-	err := http.ListenAndServe(":8080", router)
+	loggingHandler := logging.NewApacheLoggingHandler(router, os.Stderr)
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: loggingHandler,
+	}
+	//err := http.ListenAndServe(":8080", router)
+	err := server.ListenAndServe()
 	if err != nil {
 		log.Panic("ListenAndServeErr: ", err)
 	}
