@@ -2,8 +2,8 @@ package models
 
 import (
 	"database/sql"
-	//"fmt"
 	"encoding/json"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
@@ -82,4 +82,21 @@ func NewMovie(r *http.Request) interface{} {
 		errout.Error = "Duplicate Name"
 		return errout
 	}
+}
+
+func GetMovieById(id string) interface{} {
+	movie := new(Movie)
+	err := Db.QueryRow("select * from movies where id='"+id+"'").Scan(&movie.Id, &movie.Name, &movie.Year, &movie.Director, &movie.Timestamp)
+	if err != nil && err.Error() != "sql: no rows in result set" {
+		log.Panic("Model GetMovieById Select failed: ", err)
+	}
+	if err != nil && err.Error() == "sql: no rows in result set" {
+		fmt.Println("No Data found in Database!")
+		errout := new(ErrOut)
+		errout.Error = "Requested ID not found"
+		return errout
+	} else {
+		return movie
+	}
+
 }

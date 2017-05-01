@@ -16,6 +16,7 @@ func main() {
 	router := httprouter.New()
 	router.GET("/movies", controllers.GetMovies)
 	router.POST("/movie/new", controllers.NewMovie)
+	router.GET("/movie/:id", controllers.GetMovieById)
 	loggingHandler := logging.NewApacheLoggingHandler(router, os.Stderr)
 	server := &http.Server{
 		Addr:    ":8080",

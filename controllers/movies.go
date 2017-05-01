@@ -23,3 +23,10 @@ func NewMovie(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		log.Panic("Error EncodingJson in ControllersNewMovie", err)
 	}
 }
+
+func GetMovieById(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if err := json.NewEncoder(w).Encode(models.GetMovieById(p.ByName("id"))); err != nil {
+		log.Panic("Controller GetMovieById json err: ", err)
+	}
+}
