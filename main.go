@@ -3,6 +3,7 @@ package main
 import (
 	//	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"github.com/rs/cors"
 	"log"
 	"moviesapp/controllers"
 	"moviesapp/logging"
@@ -17,7 +18,8 @@ func main() {
 	router.GET("/movies", controllers.GetMovies)
 	router.POST("/movie/new", controllers.NewMovie)
 	router.GET("/movie/:id", controllers.GetMovieById)
-	loggingHandler := logging.NewApacheLoggingHandler(router, os.Stderr)
+	handler := cors.Default().Handler(router)
+	loggingHandler := logging.NewApacheLoggingHandler(handler, os.Stderr)
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: loggingHandler,

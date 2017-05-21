@@ -20,6 +20,7 @@ func GetMovies(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func NewMovie(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	if err := json.NewEncoder(w).Encode(models.NewMovie(r)); err != nil {
 		log.Panic("Error EncodingJson in ControllersNewMovie", err)
 	}
