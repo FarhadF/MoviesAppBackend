@@ -16,8 +16,9 @@ func main() {
 	models.InitDB()
 	router := httprouter.New()
 	router.GET("/movies", controllers.GetMovies)
-	router.POST("/movie/new", controllers.NewMovie)
+	router.POST("/movie/", controllers.NewMovie)
 	router.GET("/movie/:id", controllers.GetMovieById)
+	router.POST("/movie/:id/edit", controllers.UpdateMovie)
 	handler := cors.Default().Handler(router)
 	loggingHandler := logging.NewApacheLoggingHandler(handler, os.Stderr)
 	server := &http.Server{
