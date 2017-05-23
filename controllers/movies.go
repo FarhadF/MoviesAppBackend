@@ -33,9 +33,17 @@ func GetMovieById(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		log.Panic("Controller GetMovieById json err: ", err)
 	}
 }
+
 func UpdateMovie(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	if err := json.NewEncoder(w).Encode(models.UpdateMovie(r, p.ByName("id"))); err != nil {
+		log.Panic("Controller UpdateMovieById json err: ", err)
+	}
+}
+
+func DeleteMovie(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if err := json.NewEncoder(w).Encode(models.DeleteMovie(p.ByName("id"))); err != nil {
 		log.Panic("Controller UpdateMovieById json err: ", err)
 	}
 }

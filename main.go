@@ -19,6 +19,7 @@ func main() {
 	router.POST("/movie/", controllers.NewMovie)
 	router.GET("/movie/:id", controllers.GetMovieById)
 	router.POST("/movie/:id/edit", controllers.UpdateMovie)
+	router.DELETE("/movie/:id", controllers.DeleteMovie)
 	handler := cors.Default().Handler(router)
 	loggingHandler := logging.NewApacheLoggingHandler(handler, os.Stderr)
 	server := &http.Server{

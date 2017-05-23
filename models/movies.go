@@ -117,3 +117,13 @@ func UpdateMovie(r *http.Request, id string) interface{} {
 	return strconv.FormatInt(affected, 10)
 
 }
+
+func DeleteMovie(id string) interface{} {
+	stmt, err := Db.Prepare("delete from movies where id=?")
+	res, err := stmt.Exec(id)
+	affected, err := res.RowsAffected()
+	if err != nil {
+		log.Panic("DB Error in ModelsDeleteMovie: ", err)
+	}
+	return strconv.FormatInt(affected, 10)
+}
