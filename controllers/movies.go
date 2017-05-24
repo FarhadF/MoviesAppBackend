@@ -43,6 +43,7 @@ func UpdateMovie(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 func DeleteMovie(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	if err := json.NewEncoder(w).Encode(models.DeleteMovie(p.ByName("id"))); err != nil {
 		log.Panic("Controller UpdateMovieById json err: ", err)
 	}
