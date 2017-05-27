@@ -20,6 +20,7 @@ func main() {
 	router.GET("/movie/:id", controllers.GetMovieById)
 	router.POST("/movie/:id/edit", controllers.UpdateMovie)
 	router.DELETE("/movie/:id", controllers.DeleteMovie)
+	router.POST("/login", controllers.Login)
 	//handler := cors.Default().Handler(router)
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
