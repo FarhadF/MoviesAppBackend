@@ -9,6 +9,7 @@ import (
 	"net/http"
 	//"strconv"
 	//"time"
+	"moviesapp/token"
 )
 
 type User struct {
@@ -51,14 +52,20 @@ func Login(cred *http.Request) interface{} {
 		errOut.Error = "Invalid Username or Password"
 		return errOut
 	}
-	if user.Password != usercred.Password {
+	if err == nil && user.Password != usercred.Password {
 		fmt.Println(user)
 		log.Println("Invalid Password:", usercred.Password, user.Password)
 		errOut := new(ErrorOut)
 		errOut.Error = "Invalid Username or Password"
 		return errOut
 
+	} else {
+		//do token stuff
+		generatedToken, err := token.GenerateToken(user.Role)
+		if err != nil {
+			log.Println("Token creation failed: ", err)
+		}
+		return generatedToken
 	}
-	fmt.Println(user)
-	return user
+
 }
