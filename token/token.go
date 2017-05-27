@@ -1,13 +1,17 @@
 package token
 
 import (
+	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"net/http"
+	"strings"
 	"time"
 )
 
+const mySigningKey = "Super_Dup3r_S3cret"
+
 func GenerateToken(role string) (string, error) {
-	mySigningKey := "Super_Dup3r_S3cret"
 	// Create the token
 	token := jwt.New(jwt.SigningMethodHS256)
 	// Set some claims
@@ -21,5 +25,28 @@ func GenerateToken(role string) (string, error) {
 	tokenString, err := token.SignedString([]byte(mySigningKey))
 	fmt.Println(tokenString)
 	return tokenString, err
+}
+
+func ParseToken(myToken string) (bool, error) {
+	token, err := jwt.Parse(myToken, func(token *jwt.Token) (interface{}, error) {
+		return []byte(mySigningKey), nil
+	})
+	fmt.Println(token.Claims)
+	if err == nil && token.Valid {
+		return true, nil
+	} else {
+		return false, err
+	}
+}
+
+func ExtractToken(r *http.Request) (string, error) {
+	auth := r.Header.Get("Authorization")
+	split := strings.Split(auth, " ")
+	if split[0] != "Bearer" || split[1] == "" {
+
+		return "", errors.New("Malformed Auth Header")
+	} else {
+		return split[1], nil
+	}
 
 }
