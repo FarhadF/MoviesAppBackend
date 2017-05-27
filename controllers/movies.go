@@ -16,32 +16,38 @@ type errOut struct {
 
 func GetMovies(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	authToken, err := token.ExtractToken(r)
+	/*	authToken, err := token.ExtractToken(r)
 
-	if err != nil {
-		errout := new(errOut)
-		errout.Error = err.Error()
-		w.WriteHeader(http.StatusBadRequest)
-		if err := json.NewEncoder(w).Encode(errout); err != nil {
-			log.Panic("Error EncodingJson in ControllersGetMovies", err)
-		}
-	} else {
-		tokenStatus, err := token.ParseToken(authToken)
-		if err != nil || tokenStatus == false {
+		if err != nil {
 			errout := new(errOut)
 			errout.Error = err.Error()
-			w.WriteHeader(http.StatusForbidden)
+			w.WriteHeader(http.StatusBadRequest)
 			if err := json.NewEncoder(w).Encode(errout); err != nil {
 				log.Panic("Error EncodingJson in ControllersGetMovies", err)
 			}
-			log.Println("token status err: ", err)
-
 		} else {
+			tokenStatus, err := token.ParseToken(authToken)
+			if err != nil || tokenStatus == false {
+				errout := new(errOut)
+				errout.Error = err.Error()
+				w.WriteHeader(http.StatusForbidden)
+				if err := json.NewEncoder(w).Encode(errout); err != nil {
+					log.Panic("Error EncodingJson in ControllersGetMovies", err)
+				}
+				log.Println("token status err: ", err)
 
-			//w.Header().Set("Access-Control-Allow-Origin", "*")
-			if err := json.NewEncoder(w).Encode(models.GetMovies()); err != nil {
-				log.Panic("Error EncodingJson in ControllersGetMovies", err)
+			} else {
+
+				//w.Header().Set("Access-Control-Allow-Origin", "*")
+				if err := json.NewEncoder(w).Encode(models.GetMovies()); err != nil {
+					log.Panic("Error EncodingJson in ControllersGetMovies", err)
+				}
 			}
+		}*/
+	status := token.TokenHandler(w, r)
+	if status == true {
+		if err := json.NewEncoder(w).Encode(models.GetMovies()); err != nil {
+			log.Panic("Error EncodingJson in ControllersGetMovies", err)
 		}
 	}
 }

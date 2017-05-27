@@ -8,7 +8,7 @@ import (
 	"moviesapp/controllers"
 	"moviesapp/logging"
 	"moviesapp/models"
-	//"moviesapp/token"
+
 	"net/http"
 	"os"
 )
