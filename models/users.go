@@ -13,23 +13,27 @@ import (
 )
 
 type User struct {
-	Id       int    `json:id`
-	Name     string `json:name`
-	Lastname string `json:lastname`
-	Email    string `json:email`
-	Password string `json:password`
-	Role     string `json:role`
-	Created  string `json:created`
-	Updated  string `json:Updated`
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Lastname string `json:"lastname"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
+	Created  string `json:"created"`
+	Updated  string `json:"updated"`
 }
 
 type UserCredentials struct {
-	Email    string `json:email`
-	Password string `json:password`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type ErrorOut struct {
-	Error string `json:error`
+	Error string `json:"error"`
+}
+
+type TokenOut struct {
+	Token string `json:"token"`
 }
 
 func Login(cred *http.Request) interface{} {
@@ -64,8 +68,13 @@ func Login(cred *http.Request) interface{} {
 		generatedToken, err := token.GenerateToken(user.Role)
 		if err != nil {
 			log.Println("Token creation failed: ", err)
+			errOut := new(ErrorOut)
+			errOut.Error = "Invalid Username or Password"
+			return errOut
 		}
-		return generatedToken
+		jsonToken := new(TokenOut)
+		jsonToken.Token = generatedToken
+		return jsonToken
 	}
 
 }
