@@ -17,7 +17,7 @@ func main() {
 	models.InitDB()
 	router := httprouter.New()
 	router.GET("/movies", controllers.GetMovies)
-	router.POST("/movie/", controllers.NewMovie)
+	router.POST("/movie", controllers.NewMovie)
 	router.GET("/movie/:id", controllers.GetMovieById)
 	router.POST("/movie/:id/edit", controllers.UpdateMovie)
 	router.DELETE("/movie/:id", controllers.DeleteMovie)
@@ -27,6 +27,9 @@ func main() {
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "DELETE"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		//ExposedHeaders:   []string{"*"},
+		//	Debug:            true,
 	})
 	handler := c.Handler(router)
 	loggingHandler := logging.NewApacheLoggingHandler(handler, os.Stderr)

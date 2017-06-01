@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
+	//	"time"
 )
 
 var Db *sql.DB
@@ -26,11 +26,12 @@ func InitDB() {
 }
 
 type Movie struct {
-	Id        int    `json:"id"`
-	Name      string `json:"name"`
-	Year      string `json:"year"`
-	Director  string `json:"director"`
-	Timestamp string `json:"timestamp"`
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Year     string `json:"year"`
+	Director string `json:"director"`
+	Created  string `json:"created"`
+	Updated  string `json:"updated"`
 }
 
 func GetMovies() []*Movie {
@@ -41,7 +42,7 @@ func GetMovies() []*Movie {
 	Movies := make([]*Movie, 0)
 	for rows.Next() {
 		movie := new(Movie)
-		err = rows.Scan(&movie.Id, &movie.Name, &movie.Year, &movie.Director, &movie.Timestamp)
+		err = rows.Scan(&movie.Id, &movie.Name, &movie.Year, &movie.Director, &movie.Created, &movie.Updated)
 		if err != nil {
 			log.Panic("Movie Struct failed: ", err)
 		}
@@ -57,7 +58,7 @@ type ErrOut struct {
 }
 
 func NewMovie(r *http.Request) interface{} {
-	t := time.Now()
+	//t := time.Now()
 	movie := new(Movie)
 	err := json.NewDecoder(r.Body).Decode(&movie)
 
@@ -70,8 +71,8 @@ func NewMovie(r *http.Request) interface{} {
 		log.Panic("Model New Movie Select failed: ", err)
 	}
 	if !rows.Next() {
-		stmt, err := Db.Prepare("insert into movies set name=?, year=?, director=?, timestamp=?")
-		res, err := stmt.Exec(movie.Name, movie.Year, movie.Director, t.Format("2006-01-02 15:04:05"))
+		stmt, err := Db.Prepare("insert into movies set name=?, year=?, director=?")
+		res, err := stmt.Exec(movie.Name, movie.Year, movie.Director) //, t.Format("2006-01-02 15:04:05"))
 		id, err := res.LastInsertId()
 		if err != nil {
 			log.Panic("Model NewMovie insert failed: ", err)
@@ -86,7 +87,7 @@ func NewMovie(r *http.Request) interface{} {
 
 func GetMovieById(id string) interface{} {
 	movie := new(Movie)
-	err := Db.QueryRow("select * from movies where id='"+id+"'").Scan(&movie.Id, &movie.Name, &movie.Year, &movie.Director, &movie.Timestamp)
+	err := Db.QueryRow("select * from movies where id='"+id+"'").Scan(&movie.Id, &movie.Name, &movie.Year, &movie.Director, &movie.Created, &movie.Updated)
 	if err != nil && err.Error() != "sql: no rows in result set" {
 		log.Panic("Model GetMovieById Select failed: ", err)
 	}
@@ -103,13 +104,13 @@ func GetMovieById(id string) interface{} {
 
 func UpdateMovie(r *http.Request, id string) interface{} {
 	movie := new(Movie)
-	t := time.Now()
+	//t := time.Now()
 	err := json.NewDecoder(r.Body).Decode(&movie)
 	if err != nil {
 		log.Panic("JsonDecode failed in ModelsEditMovie: ", err)
 	}
-	stmt, err := Db.Prepare("update movies set name=?, year=?, director=?, timestamp=? where id=?")
-	res, err := stmt.Exec(movie.Name, movie.Year, movie.Director, t.Format("2006-01-02 15:04:05"), id)
+	stmt, err := Db.Prepare("update movies set name=?, year=?, director=? where id=?")
+	res, err := stmt.Exec(movie.Name, movie.Year, movie.Director, id) //t.Format("2006-01-02 15:04:05"), id)
 	affected, err := res.RowsAffected()
 	if err != nil {
 		log.Panic("DB Error in ModelsEditMovie: ", err)

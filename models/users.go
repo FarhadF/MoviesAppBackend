@@ -46,7 +46,7 @@ func Login(cred *http.Request) interface{} {
 		return `{"error": "Server Error"}`
 	}
 	fmt.Println(usercred)
-	err = Db.QueryRow("select * from users where email='"+usercred.Email+"'").Scan(&user.Id, &user.Password, &user.Name, &user.Lastname, &user.Email, &user.Created, &user.Updated, &user.Role)
+	err = Db.QueryRow("select * from users where email='"+usercred.Email+"'").Scan(&user.Id, &user.Email, &user.Name, &user.Lastname, &user.Password, &user.Role, &user.Created, &user.Updated)
 	if err != nil && err.Error() != "sql: no rows in result set" {
 		log.Println("Models users login query Failed: ", err)
 	}
