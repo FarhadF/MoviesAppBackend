@@ -5,7 +5,7 @@ Simple Movie Directory, Exposing REST API, using mysql database.
 
 
 Table Structure:
-
+```
 CREATE TABLE movies (
     id int NOT NULL AUTO_INCREMENT,
     name varchar(255) NOT NULL,
@@ -15,7 +15,8 @@ CREATE TABLE movies (
     updated timestamp default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
     PRIMARY KEY (ID)
 );
-
+```
+```
 CREATE TABLE users (
     id int NOT NULL AUTO_INCREMENT,
     email varchar(255) NOT NULL,
@@ -27,3 +28,4 @@ CREATE TABLE users (
     updated timestamp default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
     PRIMARY KEY (ID)
 );
+```
