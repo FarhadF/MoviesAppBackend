@@ -28,8 +28,16 @@ func NewMovie(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	//w.Header().Set("Access-Control-Allow-Origin", "*")
 	status := token.TokenHandler(w, r)
 	if status == true {
-		if err := json.NewEncoder(w).Encode(models.NewMovie(r)); err != nil {
-			log.Panic("Error EncodingJson in ControllersNewMovie", err)
+		id, err := models.NewMovie(r)
+		if err == nil && id != "" {
+			if err := json.NewEncoder(w).Encode(models.GetMovieById(id)); err != nil {
+				log.Panic("Error EncodingJson in ControllersNewMovie", err)
+			}
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			if err := json.NewEncoder(w).Encode(err); err != nil {
+				log.Panic("Error EncodingJson in ControllersNewMovie", err)
+			}
 		}
 	}
 }

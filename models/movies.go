@@ -57,31 +57,35 @@ type ErrOut struct {
 	Error string `json:"error"`
 }
 
-func NewMovie(r *http.Request) interface{} {
+func NewMovie(r *http.Request) (string, *ErrOut) {
 	//t := time.Now()
 	movie := new(Movie)
 	err := json.NewDecoder(r.Body).Decode(&movie)
-
-	if err != nil {
-		log.Panic("JsonDecode failed in ModelsNewMovie: ", err)
-	}
-
-	rows, err := Db.Query("select * from movies where name='" + movie.Name + "'")
-	if err != nil {
-		log.Panic("Model New Movie Select failed: ", err)
-	}
-	if !rows.Next() {
-		stmt, err := Db.Prepare("insert into movies set name=?, year=?, director=?")
-		res, err := stmt.Exec(movie.Name, movie.Year, movie.Director) //, t.Format("2006-01-02 15:04:05"))
-		id, err := res.LastInsertId()
+	if movie.Name != "" && movie.Director != "" && movie.Year != "" {
 		if err != nil {
-			log.Panic("Model NewMovie insert failed: ", err)
+			log.Panic("JsonDecode failed in ModelsNewMovie: ", err)
 		}
-		return strconv.FormatInt(id, 10)
+		rows, err := Db.Query("select * from movies where name='" + movie.Name + "'")
+		if err != nil {
+			log.Panic("Model New Movie Select failed: ", err)
+		}
+		if !rows.Next() {
+			stmt, err := Db.Prepare("insert into movies set name=?, year=?, director=?")
+			res, err := stmt.Exec(movie.Name, movie.Year, movie.Director) //, t.Format("2006-01-02 15:04:05"))
+			id, err := res.LastInsertId()
+			if err != nil {
+				log.Panic("Model NewMovie insert failed: ", err)
+			}
+			return strconv.FormatInt(id, 10), nil
+		} else {
+			errout := new(ErrOut)
+			errout.Error = "duplicate name"
+			return "", errout
+		}
 	} else {
 		errout := new(ErrOut)
-		errout.Error = "Duplicate Name"
-		return errout
+		errout.Error = "fill the required fields"
+		return "", errout
 	}
 }
 
