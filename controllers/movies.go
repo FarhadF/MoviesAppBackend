@@ -39,6 +39,8 @@ func NewMovie(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				log.Panic("Error EncodingJson in ControllersNewMovie", err)
 			}
 		}
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
 
@@ -54,9 +56,19 @@ func UpdateMovie(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	status := token.TokenHandler(w, r)
 	if status == true {
-		if err := json.NewEncoder(w).Encode(models.UpdateMovie(r, p.ByName("id"))); err != nil {
-			log.Panic("Controller UpdateMovieById json err: ", err)
+		id, err := models.UpdateMovie(r, p.ByName("id"))
+		if err == nil {
+			if err := json.NewEncoder(w).Encode(id); err != nil {
+				log.Panic("Controller UpdateMovieById json err: ", err)
+			}
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			if err := json.NewEncoder(w).Encode(err); err != nil {
+				log.Panic("Controller UpdateMovieById json err: ", err)
+			}
 		}
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
 

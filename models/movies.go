@@ -106,20 +106,26 @@ func GetMovieById(id string) interface{} {
 
 }
 
-func UpdateMovie(r *http.Request, id string) interface{} {
+func UpdateMovie(r *http.Request, id string) (string, *ErrOut) {
 	movie := new(Movie)
 	//t := time.Now()
 	err := json.NewDecoder(r.Body).Decode(&movie)
-	if err != nil {
-		log.Panic("JsonDecode failed in ModelsEditMovie: ", err)
+	if movie.Name != "" && movie.Director != "" && movie.Year != "" {
+		if err != nil {
+			log.Panic("JsonDecode failed in ModelsEditMovie: ", err)
+		}
+		stmt, err := Db.Prepare("update movies set name=?, year=?, director=? where id=?")
+		res, err := stmt.Exec(movie.Name, movie.Year, movie.Director, id) //t.Format("2006-01-02 15:04:05"), id)
+		affected, err := res.RowsAffected()
+		if err != nil {
+			log.Panic("DB Error in ModelsEditMovie: ", err)
+		}
+		return strconv.FormatInt(affected, 10), nil
+	} else {
+		errout := new(ErrOut)
+		errout.Error = "fill the required fields"
+		return "", errout
 	}
-	stmt, err := Db.Prepare("update movies set name=?, year=?, director=? where id=?")
-	res, err := stmt.Exec(movie.Name, movie.Year, movie.Director, id) //t.Format("2006-01-02 15:04:05"), id)
-	affected, err := res.RowsAffected()
-	if err != nil {
-		log.Panic("DB Error in ModelsEditMovie: ", err)
-	}
-	return strconv.FormatInt(affected, 10)
 
 }
 
