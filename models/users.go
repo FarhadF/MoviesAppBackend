@@ -78,3 +78,62 @@ func Login(cred *http.Request) interface{} {
 	}
 
 }
+
+func Register(r *http.Request) interface{} {
+	var user User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		log.Println(err)
+		errOut := new(ErrorOut)
+		errOut.Error = "Server Error"
+	}
+	if user.Email == "" {
+		log.Println("Please enter your Email.")
+		errOut := new(ErrorOut)
+		errOut.Error = "Please enter your Email."
+		return errOut
+	} else {
+		if user.Lastname == "" {
+			log.Println("Please enter your Lastname.")
+			errOut := new(ErrorOut)
+			errOut.Error = "Please enter your Lastname."
+			return errOut
+		}
+		if user.Name == "" {
+			log.Println("Please enter your Name.")
+			errOut := new(ErrorOut)
+			errOut.Error = "Please enter your Name."
+			return errOut
+		}
+		if user.Password == "" {
+			log.Println("Please enter your Password.")
+			errOut := new(ErrorOut)
+			errOut.Error = "Please enter your Password."
+			return errOut
+		}
+		var exists bool
+		stmt, err := Db.Prepare("select exists (select * from users where email=?)")
+		err = stmt.QueryRow(user.Email).Scan(&exists)
+		if err != nil {
+			log.Println("Register Query failed: ", err)
+		}
+		if exists == true {
+			log.Println("Email already exists")
+			errOut := new(ErrorOut)
+			errOut.Error = "Email already registered"
+			return errOut
+		} else {
+			//Register User
+			stmt, err := Db.Prepare("insert into users set email=?,name=?,lastname=?,password=?,role=?")
+			if err != nil {
+				log.Println("Register Query failed: ", err)
+			}
+			res, err := stmt.Exec(user.Email, user.Name, user.Lastname, user.Password, "user")
+			if err != nil {
+				log.Println("Register Query failed: ", err)
+			}
+			id, err := res.LastInsertId()
+			return id
+		}
+	}
+}

@@ -17,3 +17,10 @@ func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	//fmt.Println(reflect.TypeOf(r.Body))
 }
+
+func Register(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if err := json.NewEncoder(w).Encode(models.Register(r)); err != nil {
+		log.Panic("Controller User: Register Json err: ", err)
+	}
+}
