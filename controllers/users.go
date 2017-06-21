@@ -12,15 +12,32 @@ import (
 
 func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	if err := json.NewEncoder(w).Encode(models.Login(r)); err != nil {
-		log.Panic("Controller User: Login json err: ", err)
+	res, err := models.Login(r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			log.Panic("Controller User: Login json err: ", err)
+		}
+	} else {
+		if err := json.NewEncoder(w).Encode(res); err != nil {
+			log.Panic("Controller User: Register Json err: ", err)
+		}
 	}
 	//fmt.Println(reflect.TypeOf(r.Body))
 }
 
 func Register(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	if err := json.NewEncoder(w).Encode(models.Register(r)); err != nil {
-		log.Panic("Controller User: Register Json err: ", err)
+	res, err := models.Register(r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			log.Panic("Controller User: Register Json err: ", err)
+		}
+	} else {
+		if err := json.NewEncoder(w).Encode(res); err != nil {
+			log.Panic("Controller User: Register Json err: ", err)
+		}
 	}
 }

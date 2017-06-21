@@ -36,14 +36,16 @@ type TokenOut struct {
 	Token string `json:"token"`
 }
 
-func Login(cred *http.Request) interface{} {
+func Login(cred *http.Request) (*TokenOut, *ErrorOut) {
 
 	var usercred UserCredentials
 	var user User
 	err := json.NewDecoder(cred.Body).Decode(&usercred)
 	if err != nil {
 		log.Println("Models Users Login json failed: ", err)
-		return `{"error": "Server Error"}`
+		errOut := new(ErrorOut)
+		errOut.Error = "Server Error"
+		return nil, errOut
 	}
 	fmt.Println(usercred)
 	err = Db.QueryRow("select * from users where email='"+usercred.Email+"'").Scan(&user.Id, &user.Email, &user.Name, &user.Lastname, &user.Password, &user.Role, &user.Created, &user.Updated)
@@ -54,14 +56,14 @@ func Login(cred *http.Request) interface{} {
 		log.Println("User Not Found")
 		errOut := new(ErrorOut)
 		errOut.Error = "Invalid Username or Password"
-		return errOut
+		return nil, errOut
 	}
 	if err == nil && user.Password != usercred.Password {
 		fmt.Println(user)
 		log.Println("Invalid Password:", usercred.Password, user.Password)
 		errOut := new(ErrorOut)
 		errOut.Error = "Invalid Username or Password"
-		return errOut
+		return nil, errOut
 
 	} else {
 		//do token stuff
@@ -70,46 +72,47 @@ func Login(cred *http.Request) interface{} {
 			log.Println("Token creation failed: ", err)
 			errOut := new(ErrorOut)
 			errOut.Error = "Invalid Username or Password"
-			return errOut
+			return nil, errOut
 		}
 		jsonToken := new(TokenOut)
 		jsonToken.Token = generatedToken
-		return jsonToken
+		return jsonToken, nil
 	}
 
 }
 
-func Register(r *http.Request) interface{} {
+func Register(r *http.Request) (string, *ErrorOut) {
 	var user User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		log.Println(err)
 		errOut := new(ErrorOut)
 		errOut.Error = "Server Error"
+		return "", errOut
 	}
 	if user.Email == "" {
 		log.Println("Please enter your Email.")
 		errOut := new(ErrorOut)
 		errOut.Error = "Please enter your Email."
-		return errOut
+		return "", errOut
 	} else {
 		if user.Lastname == "" {
 			log.Println("Please enter your Lastname.")
 			errOut := new(ErrorOut)
 			errOut.Error = "Please enter your Lastname."
-			return errOut
+			return "", errOut
 		}
 		if user.Name == "" {
 			log.Println("Please enter your Name.")
 			errOut := new(ErrorOut)
 			errOut.Error = "Please enter your Name."
-			return errOut
+			return "", errOut
 		}
 		if user.Password == "" {
 			log.Println("Please enter your Password.")
 			errOut := new(ErrorOut)
 			errOut.Error = "Please enter your Password."
-			return errOut
+			return "", errOut
 		}
 		var exists bool
 		stmt, err := Db.Prepare("select exists (select * from users where email=?)")
@@ -121,7 +124,7 @@ func Register(r *http.Request) interface{} {
 			log.Println("Email already exists")
 			errOut := new(ErrorOut)
 			errOut.Error = "Email already registered"
-			return errOut
+			return "", errOut
 		} else {
 			//Register User
 			stmt, err := Db.Prepare("insert into users set email=?,name=?,lastname=?,password=?,role=?")
@@ -133,7 +136,7 @@ func Register(r *http.Request) interface{} {
 				log.Println("Register Query failed: ", err)
 			}
 			id, err := res.LastInsertId()
-			return id
+			return string(id), nil
 		}
 	}
 }
